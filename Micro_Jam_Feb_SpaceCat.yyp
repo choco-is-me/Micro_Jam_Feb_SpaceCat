@@ -9,7 +9,9 @@
     "name":"Default",
   },
   "defaultScriptType":0,
-  "Folders":[],
+  "Folders":[
+    {"$GMFolder":"","%Name":"Objects","folderPath":"folders/Objects.yy","name":"Objects","resourceType":"GMFolder","resourceVersion":"2.0",},
+  ],
   "ForcedPrefabProjectReferences":[],
   "IncludedFiles":[],
   "isEcma":false,
@@ -19,6 +21,12 @@
   },
   "name":"Micro_Jam_Feb_SpaceCat",
   "resources":[
+    {"id":{"name":"obj_campfire","path":"objects/obj_campfire/obj_campfire.yy",},},
+    {"id":{"name":"obj_clue","path":"objects/obj_clue/obj_clue.yy",},},
+    {"id":{"name":"obj_controller","path":"objects/obj_controller/obj_controller.yy",},},
+    {"id":{"name":"obj_enemy","path":"objects/obj_enemy/obj_enemy.yy",},},
+    {"id":{"name":"obj_player","path":"objects/obj_player/obj_player.yy",},},
+    {"id":{"name":"obj_stick","path":"objects/obj_stick/obj_stick.yy",},},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
   ],
   "resourceType":"GMProject",
