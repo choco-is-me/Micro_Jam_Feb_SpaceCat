@@ -39,14 +39,22 @@ var _margin = 20;
     // --- FUEL & INVENTORY UI ---
     
     // 1. Fuel (Text)
-    // draw_text(20, _margin + _lh, UI_LABEL_FUEL + string(floor(global.fuel)) + "%");
-    // Actually, let's just push it down a bit or keep it. User didn't ask to change fuel representation, just sticks/clues.
-    // But for consistency let's keep fuel as text at top left for now.
-    draw_text(20, _margin, UI_LABEL_FUEL + string(floor(global.fuel)) + "%"); // Moved up to replace sanity text slot
+    // Keep consistent margin
+    var _ui_left_margin = 20;
+    
+    draw_text(_ui_left_margin, _margin, UI_LABEL_FUEL + string(floor(global.fuel)) + "%");
     
     var _icon_size = 32 * _scale;
-    var _x_pos = 20;
-    var _y_pos_start = _margin + _lh * 1.5; // Start below fuel
+    
+    // Fix X Pos: Ensure sprite (centered origin) isn't clipped
+    // Width is _icon_size. Center at 16 (half).
+    // So we need at least half width + margin
+    var _x_pos = _ui_left_margin + (_icon_size / 2);
+    
+    // Fix Y Pos: Ensure no overlap with Fuel text above
+    // Start below fuel line + padding + half icon height (since we center align)
+    // Fuel bottom = _margin + _lh
+    var _y_pos_start = _margin + _lh + 10 + (_icon_size / 2); 
     
     // 2. Clues (Sprite + Count)
     // Only show if near campfire (player within CAMPFIRE_INTERACT_RADIUS of obj_campfire)
@@ -61,30 +69,31 @@ var _margin = 20;
 
     if (_show_clues) {
         var _clue_y = _y_pos_start;
-        draw_sprite_ext(spr_clue_note, 0, _x_pos, _clue_y, _scale, _scale, 0, c_white, 1);
+        // Sprite Origin is Bottom-Center.
+        // To align Visual Center with Text, push Sprite down by half height.
+        draw_sprite_ext(spr_clue_note, 0, _x_pos, _clue_y + (_icon_size / 2), _scale, _scale, 0, c_white, 1);
         
         draw_set_valign(fa_middle);
-        // Only show collected count, hide total needed to keep player guessing
         var _text_clue = string(global.clues_collected);
-        draw_text(_x_pos + _icon_size + 10, _clue_y + (_icon_size / 2), _text_clue);
+        // Align text with visual center
+        draw_text(_x_pos + (_icon_size / 2) + 10, _clue_y, _text_clue);
     }
     
     // 3. Sticks (Sprite + Count)
-    // Sticks always visible? Or also hidden? Usually inventory is visible. Let's keep sticks visible.
-    // Adjust Y position based on whether clues were shown? 
-    // Actually, consistency might be better if sticks stay in place.
-    // But if we hide clues, there's a gap.
-    // Let's shift sticks up if clues are hidden.
     
     var _stick_y = _y_pos_start;
     if (_show_clues) {
         _stick_y += _icon_size + 10;
     }
 
-    draw_sprite_ext(spr_stick, 0, _x_pos, _stick_y, _scale, _scale, 0, c_white, 1);
+    // Stick Sprite
+    draw_sprite_ext(spr_stick, 0, _x_pos, _stick_y + (_icon_size / 2), _scale, _scale, 0, c_white, 1);
     
+    draw_set_valign(fa_middle);
     var _text_stick = string(obj_player.stick_inventory) + " / " + string(obj_player.max_sticks);
-    draw_text(_x_pos + _icon_size + 10, _stick_y + (_icon_size / 2), _text_stick);
+    
+    // Stick Text
+    draw_text(_x_pos + (_icon_size / 2) + 10, _stick_y, _text_stick);
     
     draw_set_valign(fa_top); // Reset
 

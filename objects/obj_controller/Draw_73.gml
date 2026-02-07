@@ -2,7 +2,7 @@ if (global.show_debug_grid) {
     draw_set_font(FONT_MAIN);
     draw_set_alpha(0.3);
 
-    draw_set_color(c_dkgray);
+    draw_set_color(c_white);
     
     var _grid_size = TILE_SIZE;
 
@@ -21,13 +21,13 @@ if (global.show_debug_grid) {
     
     draw_set_alpha(1);
     
-    // Highlight occupied cells (Items)
+    // Highlight occupied cells (Items) - Use Bbox for accuracy
     draw_set_color(c_yellow);
     with (obj_stick) {
-        draw_rectangle(x - 16, y - 16, x + 16, y + 16, true);
+        draw_rectangle(bbox_left, bbox_top, bbox_right, bbox_bottom, true);
     }
     with (obj_clue) {
         draw_set_color(c_aqua);
-        draw_rectangle(x - 16, y - 16, x + 16, y + 16, true);
+        draw_rectangle(bbox_left, bbox_top, bbox_right, bbox_bottom, true);
     }
 }

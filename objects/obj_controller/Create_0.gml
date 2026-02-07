@@ -81,9 +81,12 @@ var spawn_resource = function(_obj, _count, _min_dist, _max_dist, _list, _grid_s
         // 2. Create unique key for this cell (e.g., "10_5")
         var _key = string(_gx) + "_" + string(_gy);
         
-        // 3. Convert to world coordinates (Center of tile)
+        // 3. Convert to world coordinates
+        // Spawning Logic for Bottom-Center Origin Objects
+        // X: Center of tile (16px)
+        // Y: Bottom of tile (32px) - This ensures the object stands *on* the tile and fills it upwards
         var _xx = (_gx * _grid_size) + (_grid_size / 2);
-        var _yy = (_gy * _grid_size) + (_grid_size / 2);
+        var _yy = (_gy * _grid_size) + _grid_size;
         
         // 4. Check Distance Rules (Relative to passed center now)
         var _dist_to_center = point_distance(_center_x, _center_y, _xx, _yy);
