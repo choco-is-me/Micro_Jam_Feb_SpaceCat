@@ -1,25 +1,38 @@
 randomize();
-global.sanity = 100;
-global.fuel = 100;
-global.max_fuel = 100;
+global.sanity = SANITY_MAX;
+global.fuel = FUEL_MAX;
+global.max_fuel = FUEL_MAX;
 global.clues_collected = 0;
-global.total_clues_needed = 5;
+global.total_clues_needed = TOTAL_CLUES_NEEDED;
 global.game_over = false;
 global.game_won = false;
 global.message = "";
 global.show_debug_grid = false; // Toggle for grid visualization
 
 // --- INPUT MAPPING SYSTEM ---
-global.key_interact = ord("E");
+global.key_interact = vk_space;
 global.key_up = ord("W");
 global.key_left = ord("A");
 global.key_down = ord("S");
 global.key_right = ord("D");
 
+
 global.get_key_name = function(_key) {
-    // Basic ASCII return. 
-    // You can expand this with a switch statement for VK_SPACE, VK_ENTER etc. if needed later.
-    return chr(_key);
+    switch(_key) {
+        case vk_space: return "SPACE";
+        case vk_enter: return "ENTER";
+        case vk_shift: return "SHIFT";
+        case vk_control: return "CTRL";
+        case vk_alt: return "ALT";
+        case vk_up: return "UP";
+        case vk_down: return "DOWN";
+        case vk_left: return "LEFT";
+        case vk_right: return "RIGHT";
+        case vk_escape: return "ESC";
+        case vk_backspace: return "BACK";
+        case vk_tab: return "TAB";
+        default: return chr(_key);
+    }
 };
 
 // Help UI State
@@ -39,10 +52,14 @@ if (!instance_exists(obj_camera)) {
 }
 
 // --- GRID SPAWN SYSTEM ---
-var GRID_SIZE = 32;
 var occupied_cells = ds_list_create(); // Track used cells to prevent overlap
 
+// Initialize Delta Time global
+global.dt = 0;
+enemy_spawn_timer = 0;
+
 var spawn_resource = function(_obj, _count, _min_dist, _max_dist, _list, _grid_size) {
+
     var _spawned_count = 0;
     var _attempts = 0;
     
@@ -78,9 +95,9 @@ var spawn_resource = function(_obj, _count, _min_dist, _max_dist, _list, _grid_s
 };
 
 // Spawn Sticks (Inner/Middle Ring)
-spawn_resource(obj_stick, 15, 200, room_width/2 - 50, occupied_cells, GRID_SIZE);
+spawn_resource(obj_stick, 15, 200, room_width/2 - 50, occupied_cells, TILE_SIZE);
 
 // Spawn Clues (Middle/Outer Ring)
-spawn_resource(obj_clue, 5, 250, room_width/2 - 20, occupied_cells, GRID_SIZE);
+spawn_resource(obj_clue, TOTAL_CLUES_NEEDED, 250, room_width/2 - 20, occupied_cells, TILE_SIZE);
 
 ds_list_destroy(occupied_cells);

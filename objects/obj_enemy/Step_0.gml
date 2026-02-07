@@ -19,12 +19,17 @@ if (instance_exists(obj_player)) {
     }
 
     // Chase Logic
-    move_towards_point(obj_player.x, obj_player.y, spd);
+    // Manual Movement for Delta Time support
+    var dir = point_direction(x, y, obj_player.x, obj_player.y);
+    var move_amt = spd * global.dt;
+    
+    x += lengthdir_x(move_amt, dir);
+    y += lengthdir_y(move_amt, dir);
     
     // Attack Logic
     var dist = point_distance(x, y, obj_player.x, obj_player.y);
     if (dist < 20) {
-        global.sanity -= 30;
+        global.sanity -= ENEMY_DAMAGE_SANITY;
         instance_destroy();
     }
 }

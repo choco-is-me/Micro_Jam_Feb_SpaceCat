@@ -1,6 +1,9 @@
 // Draw Interaction Prompt on GUI layer for crisp text
 if (active_interact_target != noone) {
+    draw_set_font(FONT_MAIN);
+    
     var _cam = view_camera[0];
+
     var _cx = camera_get_view_x(_cam);
     var _cy = camera_get_view_y(_cam);
     var _cw = camera_get_view_width(_cam);

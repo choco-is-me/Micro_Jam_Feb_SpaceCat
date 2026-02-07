@@ -1,1 +1,2 @@
-light_radius = 100 + (global.fuel * 3);
+light_radius = CAMPFIRE_BASE_RADIUS + (global.fuel * CAMPFIRE_FUEL_MULTIPLIER);
+

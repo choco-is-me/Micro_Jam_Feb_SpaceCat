@@ -1,10 +1,11 @@
+// CALCULATE DELTA TIME (Seconds passed)
+global.dt = delta_time / 1000000;
+
 if (global.game_over || global.game_won) exit;
 
 // Controls / Debug
 if (keyboard_check_pressed(vk_f1)) {
     help_open = !help_open;
-    // Reset notification alpha if manually opened so it's visible if they close it immediately? 
-    // Actually, if they open menu, we don't need the notification anymore.
     if (help_open) help_notif_alpha = 0; 
 }
 
@@ -14,11 +15,11 @@ if (keyboard_check_pressed(vk_f2)) {
 
 // Fade out notification
 if (help_notif_alpha > 0 && !help_open) {
-    help_notif_alpha -= 0.016; // approx 1 second fade after initial delay
+    help_notif_alpha -= 1.0 * global.dt; // 1 second fade
 }
 
 if (global.fuel > 0) {
-    global.fuel -= 0.05; // Fuel drain
+    global.fuel -= FUEL_DRAIN_RATE * global.dt; // Fuel drain per second
 } else {
     global.fuel = 0;
 }
@@ -32,8 +33,18 @@ if (instance_number(obj_enemy) == 0) {
         
         // Spawn only if player is OUTSIDE the safe zone
         if (dist_to_fire > campfire.light_radius) {
-            // 2% chance per frame to spawn
-            if (random(100) < 2) {
+            
+            // Increment Timer
+            enemy_spawn_timer += global.dt;
+            
+            // Check Timer > Interval
+            if (enemy_spawn_timer > ENEMY_SPAWN_INTERVAL) {
+                 
+                 // Chance check (simulate randomness still, or just force spawn?)
+                 // Let's force spawn to be reliable if interval passed, or add randomness to interval.
+                 // Reset timer
+                 enemy_spawn_timer = 0;
+                 
                  // SPAWN LOGIC: Randomly spawn just outside camera view
                  var cam = view_camera[0];
                  var cx = camera_get_view_x(cam);

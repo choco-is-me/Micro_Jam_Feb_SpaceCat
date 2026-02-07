@@ -1,8 +1,11 @@
 if (global.show_debug_grid) {
+    draw_set_font(FONT_MAIN);
     draw_set_alpha(0.3);
+
     draw_set_color(c_dkgray);
     
-    var _grid_size = 32;
+    var _grid_size = TILE_SIZE;
+
     var _w = room_width;
     var _h = room_height;
     
