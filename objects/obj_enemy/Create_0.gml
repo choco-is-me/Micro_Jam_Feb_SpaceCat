@@ -1,1 +1,2 @@
-spd = 2.5;
+spd = 4.2; // Slightly faster than player (4.0)
+

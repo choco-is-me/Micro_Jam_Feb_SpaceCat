@@ -9,6 +9,23 @@ global.game_won = false;
 global.message = "";
 global.show_debug_grid = false; // Toggle for grid visualization
 
+// --- INPUT MAPPING SYSTEM ---
+global.key_interact = ord("E");
+global.key_up = ord("W");
+global.key_left = ord("A");
+global.key_down = ord("S");
+global.key_right = ord("D");
+
+global.get_key_name = function(_key) {
+    // Basic ASCII return. 
+    // You can expand this with a switch statement for VK_SPACE, VK_ENTER etc. if needed later.
+    return chr(_key);
+};
+
+// Help UI State
+help_open = false;
+help_notif_alpha = 3.5; // Start >1 so it lingers before fading
+
 // Spawn Center Objects if they don't exist
 if (!instance_exists(obj_campfire)) {
     instance_create_layer(room_width/2, room_height/2, "Instances", obj_campfire);

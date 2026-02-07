@@ -1,8 +1,20 @@
 if (global.game_over || global.game_won) exit;
 
-// Debug Toggle
+// Controls / Debug
 if (keyboard_check_pressed(vk_f1)) {
+    help_open = !help_open;
+    // Reset notification alpha if manually opened so it's visible if they close it immediately? 
+    // Actually, if they open menu, we don't need the notification anymore.
+    if (help_open) help_notif_alpha = 0; 
+}
+
+if (keyboard_check_pressed(vk_f2)) {
     global.show_debug_grid = !global.show_debug_grid;
+}
+
+// Fade out notification
+if (help_notif_alpha > 0 && !help_open) {
+    help_notif_alpha -= 0.016; // approx 1 second fade after initial delay
 }
 
 if (global.fuel > 0) {

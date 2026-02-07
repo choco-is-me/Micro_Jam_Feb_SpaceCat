@@ -6,6 +6,7 @@ window_scale = 3;
 // Set Window Size
 window_set_size(view_width * window_scale, view_height * window_scale);
 surface_resize(application_surface, view_width * window_scale, view_height * window_scale);
+display_set_gui_size(view_width * window_scale, view_height * window_scale); // Ensure GUI matches window
 alarm[0] = 1; // Center window
 
 // Enable Views
