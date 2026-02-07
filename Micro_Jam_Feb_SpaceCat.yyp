@@ -21,6 +21,7 @@
   },
   "name":"Micro_Jam_Feb_SpaceCat",
   "resources":[
+    {"id":{"name":"obj_camera","path":"objects/obj_camera/obj_camera.yy",},},
     {"id":{"name":"obj_campfire","path":"objects/obj_campfire/obj_campfire.yy",},},
     {"id":{"name":"obj_clue","path":"objects/obj_clue/obj_clue.yy",},},
     {"id":{"name":"obj_controller","path":"objects/obj_controller/obj_controller.yy",},},

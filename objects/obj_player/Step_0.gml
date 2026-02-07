@@ -18,10 +18,26 @@ if (campfire != noone) {
     var dist = point_distance(x, y, campfire.x, campfire.y);
     var effective_radius = (global.fuel > 0) ? campfire.light_radius : 0;
     
+    // Assuming 60 FPS
     if (dist < effective_radius) {
-         global.sanity += 0.05;
+        // Inside Campfire Radius: +2% per second -> +2/60 per frame
+         global.sanity += 2/60;
+         stand_timer = 0; // Reset stand timer if safe
     } else {
-         global.sanity -= 0.05;
+        // Outside Campfire Radius: -1% per second -> -1/60 per frame
+         global.sanity -= 1/60;
+         
+         // Check for Standing Still
+         if (hinput == 0 && vinput == 0) {
+             stand_timer++;
+             // Active after 1 second (1 * 60 = 60 frames) - HARDCORE MODE
+             if (stand_timer > 60) {
+                 // penalty: -2% per second -> -2/60 per frame
+                 global.sanity -= 2/60;
+             }
+         } else {
+             stand_timer = 0;
+         }
     }
 }
 

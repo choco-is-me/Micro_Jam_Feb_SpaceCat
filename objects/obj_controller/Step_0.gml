@@ -1,5 +1,10 @@
 if (global.game_over || global.game_won) exit;
 
+// Debug Toggle
+if (keyboard_check_pressed(vk_f1)) {
+    global.show_debug_grid = !global.show_debug_grid;
+}
+
 if (global.fuel > 0) {
     global.fuel -= 0.05; // Fuel drain
 } else {
@@ -17,11 +22,35 @@ if (instance_number(obj_enemy) == 0) {
         if (dist_to_fire > campfire.light_radius) {
             // 2% chance per frame to spawn
             if (random(100) < 2) {
-                 // Spawn "a bit near" (200-350 pixels)
-                 var dist = random_range(200, 350);
-                 var dir = random(360);
-                 var _x = obj_player.x + lengthdir_x(dist, dir);
-                 var _y = obj_player.y + lengthdir_y(dist, dir);
+                 // SPAWN LOGIC: Randomly spawn just outside camera view
+                 var cam = view_camera[0];
+                 var cx = camera_get_view_x(cam);
+                 var cy = camera_get_view_y(cam);
+                 var cw = camera_get_view_width(cam);
+                 var ch = camera_get_view_height(cam);
+                 var margin = 50; // Distance from edge
+                 
+                 var spawn_side = irandom(3); // 0=Top, 1=Right, 2=Bottom, 3=Left
+                 var _x, _y;
+                 
+                 switch(spawn_side) {
+                     case 0: // Top
+                        _x = random_range(cx, cx + cw);
+                        _y = cy - margin;
+                        break;
+                     case 1: // Right
+                        _x = cx + cw + margin;
+                        _y = random_range(cy, cy + ch);
+                        break;
+                     case 2: // Bottom
+                        _x = random_range(cx, cx + cw);
+                        _y = cy + ch + margin;
+                        break;
+                     case 3: // Left
+                        _x = cx - margin;
+                        _y = random_range(cy, cy + ch);
+                        break;
+                 }
                  
                  // Ensure spawn point is OUTSIDE the light radius
                  if (point_distance(_x, _y, campfire.x, campfire.y) > campfire.light_radius) {
