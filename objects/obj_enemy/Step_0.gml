@@ -5,14 +5,18 @@ if (instance_exists(obj_player)) {
     if (instance_exists(obj_campfire)) {
         var campfire = instance_nearest(x, y, obj_campfire);
         
-        // Check Player distance to light
-        var p_dist_to_fire = point_distance(obj_player.x, obj_player.y, campfire.x, campfire.y);
+        // Campfire Center
+        var _camp_cx = campfire.x;
+        var _camp_cy = campfire.y - (campfire.sprite_height / 2);
         
-        // Check Entity self distance to light
-        var e_dist_to_fire = point_distance(x, y, campfire.x, campfire.y);
+        // 1. Check Player Safety (Using precise bbox check like in obj_player)
+        var _p_safe = rectangle_in_circle(obj_player.bbox_left, obj_player.bbox_top, obj_player.bbox_right, obj_player.bbox_bottom, _camp_cx, _camp_cy, campfire.light_radius);
         
-        // Despawn if Player is safe OR Entity stepped into light
-        if (p_dist_to_fire < campfire.light_radius || e_dist_to_fire < (campfire.light_radius + 10)) {
+        // 2. Check Entity Vulnerability (If Entity touches light, it burns)
+        var _e_burn = rectangle_in_circle(bbox_left, bbox_top, bbox_right, bbox_bottom, _camp_cx, _camp_cy, campfire.light_radius);
+        
+        // Despawn if Player is sufficiently safe OR Entity stepped into light
+        if (_p_safe > 0 || _e_burn > 0) {
             instance_destroy();
             exit;
         }
@@ -23,12 +27,18 @@ if (instance_exists(obj_player)) {
     var dir = point_direction(x, y, obj_player.x, obj_player.y);
     var move_amt = spd * global.dt;
     
-    x += lengthdir_x(move_amt, dir);
-    y += lengthdir_y(move_amt, dir);
+    var _vx = lengthdir_x(move_amt, dir);
+    var _vy = lengthdir_y(move_amt, dir);
+    
+    // Collision-aware movement
+    scr_move_and_collide(_vx, _vy, par_obstacle);
+    
+    // Update Depth
+    scr_update_depth();
     
     // Attack Logic
-    var dist = point_distance(x, y, obj_player.x, obj_player.y);
-    if (dist < 20) {
+    // Use true collision check
+    if (place_meeting(x, y, obj_player)) {
         global.sanity -= ENEMY_DAMAGE_SANITY;
         instance_destroy();
     }

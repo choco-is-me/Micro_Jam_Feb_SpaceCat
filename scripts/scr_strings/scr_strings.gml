@@ -24,3 +24,9 @@
 // Game Outcomes
 #macro STR_GAME_OVER "GAME OVER\nSanity Depleted or Lost in Dark"
 #macro STR_GAME_WON "THE TRUTH IS REVEALED\nThe Entity was your own guilt."
+#macro STR_GAME_PARTIAL_WIN "ESCAPED... BUT AT WHAT COST?\nSomething essential was left behind.\nThe shadows will follow you."
+
+// Campfire Interaction
+#macro MSG_SUBMIT_CLUES "Submit Clues"
+#macro MSG_SUBMIT_NOT_ENOUGH "Need more clues..."
+

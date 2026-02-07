@@ -1,2 +1,3 @@
-draw_set_color(c_white);
-draw_rectangle(x-8, y-10, x+8, y+10, false);
+// Draw Sprite centered
+draw_sprite(spr_clue_note, 0, x - 16, y - 16);
+

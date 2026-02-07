@@ -13,7 +13,10 @@
     "name":"Objects",
     "path":"folders/Objects.yy",
   },
-  "parentObjectId":null,
+  "parentObjectId":{
+    "name":"par_obstacle",
+    "path":"objects/par_obstacle/par_obstacle.yy",
+  },
   "persistent":false,
   "physicsAngularDamping":0.1,
   "physicsDensity":0.5,
@@ -31,7 +34,10 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":null,
+  "spriteId":{
+    "name":"spr_campfire",
+    "path":"sprites/spr_campfire/spr_campfire.yy",
+  },
   "spriteMaskId":null,
   "visible":true,
 }

@@ -1,2 +1,3 @@
-draw_set_color(c_maroon);
-draw_line_width(x-10, y-10, x+10, y+10, 4);
+// Draw Sprite centered
+draw_sprite(spr_stick, 0, x - 16, y - 16);
+

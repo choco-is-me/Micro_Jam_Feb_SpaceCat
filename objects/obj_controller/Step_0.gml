@@ -29,10 +29,20 @@ if (global.fuel > 0) {
 if (instance_number(obj_enemy) == 0) {
     if (instance_exists(obj_player) && instance_exists(obj_campfire)) {
         var campfire = instance_nearest(obj_player.x, obj_player.y, obj_campfire);
-        var dist_to_fire = point_distance(obj_player.x, obj_player.y, campfire.x, campfire.y);
         
-        // Spawn only if player is OUTSIDE the safe zone
-        if (dist_to_fire > campfire.light_radius) {
+        // Use Visual Center for Consistency with Player Logic
+        var _camp_cx = campfire.x;
+        var _camp_cy = campfire.y - (campfire.sprite_height / 2);
+        
+        // Check if Player is Safe (Touching Light)
+        // Returns > 0 if overlapping.
+        var _player_safe = rectangle_in_circle(
+            obj_player.bbox_left, obj_player.bbox_top, obj_player.bbox_right, obj_player.bbox_bottom, 
+            _camp_cx, _camp_cy, campfire.light_radius
+        );
+        
+        // Spawn only if player is NOT safe (Fully in Dark)
+        if (_player_safe == 0) {
             
             // Increment Timer
             enemy_spawn_timer += global.dt;
@@ -76,7 +86,13 @@ if (instance_number(obj_enemy) == 0) {
                  }
                  
                  // Ensure spawn point is OUTSIDE the light radius
-                 if (point_distance(_x, _y, campfire.x, campfire.y) > campfire.light_radius) {
+                 // Use visual center
+                 var _camp_cx = campfire.x;
+                 var _camp_cy = campfire.y - (campfire.sprite_height/2);
+                 
+                 // Add margin to ensure not spawning just on the edge
+                 var _safety_margin = 32; 
+                 if (point_distance(_x, _y, _camp_cx, _camp_cy) > (campfire.light_radius + _safety_margin)) {
                      instance_create_layer(_x, _y, "Instances", obj_enemy);
                  }
             }
