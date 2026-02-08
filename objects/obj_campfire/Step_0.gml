@@ -36,7 +36,7 @@ if (anim_frame < _start_frame || anim_frame > _end_frame) {
 
 // 3. Ping Pong Logic (Only if range has magnitude)
 if (_start_frame != _end_frame) {
-    var _spd = anim_speed * global.dt; 
+    var _spd = CAMPFIRE_ANIM_SPEED * global.dt; 
     
     anim_frame += _spd * anim_dir;
     

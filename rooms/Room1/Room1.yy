@@ -79,8 +79,8 @@
   ],
   "name":"Room1",
   "parent":{
-    "name":"Micro_Jam_Feb_SpaceCat",
-    "path":"Micro_Jam_Feb_SpaceCat.yyp",
+    "name":"Rooms",
+    "path":"folders/Rooms.yy",
   },
   "parentRoom":null,
   "physicsSettings":{

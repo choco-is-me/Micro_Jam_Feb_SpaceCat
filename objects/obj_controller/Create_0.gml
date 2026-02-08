@@ -6,11 +6,38 @@ global.clues_collected = 0;
 global.total_clues_needed = TOTAL_CLUES_NEEDED;
 global.game_over = false;
 global.game_won = false;
+global.ending_type = ""; // "true", "partial", or ""
+
+// Room Start Fade-In (from tutorial)
+room_start_fade = true; // Start with fade-in effect
+room_fade_alpha = 1; // Start at full black
+
+// Ending Cinematic System
+ending_state = "none"; // "fade_out", "typing", "linger", "prompt", "thankyou", "thankyou_wait"
+ending_fade_alpha = 0; // 0 = normal game, 1 = full black
+ending_text_current = "";
+ending_text_visible_chars = 0;
+ending_text_timer = 0;
+ending_linger_timer = 0;
 global.message = "";
 global.show_debug_grid = false; // Toggle for grid visualization
 
+// Eye Animation (UI Warning when enemy exists)
+eye_anim_frame = 0;
+eye_anim_dir = 1; // 1 for forward, -1 for backward
+eye_anim_speed = PLAYER_EYE_ANIM_SPEED;
+eye_anim_pause_timer = 0;
+eye_anim_pause_duration = PLAYER_EYE_PAUSE_DURATION;
+
+// Enemy Warning System (Pre-spawn warning)
+enemy_warning_active = false;
+enemy_warning_has_opened = false; // Track if eye reached frame 5 (fully open)
+
 // --- INPUT MAPPING SYSTEM ---
 global.key_interact = vk_space;
+global.key_submit = vk_enter; // Separate key for submitting clues
+global.key_skip = ord("E"); // Skip dialog/advance text
+global.key_restart = ord("R"); // Restart game (partial ending)
 global.key_up = ord("W");
 global.key_left = ord("A");
 global.key_down = ord("S");
@@ -39,6 +66,13 @@ global.get_key_name = function(_key) {
 help_open = false;
 help_notif_alpha = 3.5; // Start >1 so it lingers before fading
 
+// GUI Performance Cache (calculated once, reused every frame)
+gui_scale = 0;
+gui_width = 0;
+gui_icon_size = 0;
+gui_margin = UI_MARGIN;
+gui_needs_recalc = true; // Recalculate on first draw
+
 // --- DYNAMIC SPAWN SYSTEM ---
 // 1. Ensure Campfire Exists (Use existing or spawn at center default)
 if (!instance_exists(obj_campfire)) {
@@ -64,7 +98,6 @@ var occupied_cells = ds_list_create(); // Track used cells to prevent overlap
 
 // Initialize Delta Time global
 global.dt = 0;
-enemy_spawn_timer = 0;
 
 var spawn_resource = function(_obj, _count, _min_dist, _max_dist, _list, _grid_size, _center_x, _center_y) {
 
@@ -83,23 +116,33 @@ var spawn_resource = function(_obj, _count, _min_dist, _max_dist, _list, _grid_s
         
         // 3. Convert to world coordinates
         // Spawning Logic for Bottom-Center Origin Objects
-        // X: Center of tile (16px)
-        // Y: Bottom of tile (32px) - This ensures the object stands *on* the tile and fills it upwards
+        // X: Center of tile (16px offset from tile left)
+        // Y: Center of tile (16px offset from tile top) - Centers items in grid cell
         var _xx = (_gx * _grid_size) + (_grid_size / 2);
-        var _yy = (_gy * _grid_size) + _grid_size;
+        var _yy = (_gy * _grid_size) + (_grid_size / 2);
         
-        // 4. Check Distance Rules (Relative to passed center now)
+        // 4. Check if position is not too close to room edges
+        var _within_bounds = (_xx >= SPAWN_EDGE_MARGIN && _xx <= room_width - SPAWN_EDGE_MARGIN &&
+                               _yy >= SPAWN_EDGE_MARGIN && _yy <= room_height - SPAWN_EDGE_MARGIN);
+        
+        if (!_within_bounds) continue; // Skip this position if too close to edge
+        
+        // 5. Check Distance Rules (Relative to passed center now)
         var _dist_to_center = point_distance(_center_x, _center_y, _xx, _yy);
         
         if (_dist_to_center >= _min_dist && _dist_to_center <= _max_dist) {
             
-            // 5. Check if cell is empty
+            // 6. Check if cell is empty
             if (ds_list_find_index(_list, _key) == -1) {
                 
-                // Success! Spawn and Mark cell
-                instance_create_layer(_xx, _yy, "Instances", _obj);
-                ds_list_add(_list, _key);
-                _spawned_count++;
+                // 7. Check for collision with existing objects
+                if (scr_is_spawn_position_valid(_xx, _yy, SPAWN_COLLISION_CHECK_RADIUS)) {
+                    
+                    // Success! Spawn and Mark cell
+                    instance_create_layer(_xx, _yy, "Instances", _obj);
+                    ds_list_add(_list, _key);
+                    _spawned_count++;
+                }
             }
         }
     }
@@ -112,8 +155,65 @@ var _spawn_radius_max = max(room_width, room_height) / 2;
 // Spawn Sticks (Inner Ring)
 spawn_resource(obj_stick, 15, 200, _spawn_radius_max * 0.8, occupied_cells, TILE_SIZE, _cx, _cy);
 
-// Spawn Clues (Outer Ring)
-spawn_resource(obj_clue, TOTAL_CLUES_NEEDED, 250, _spawn_radius_max, occupied_cells, TILE_SIZE, _cx, _cy);
+// Spawn Clues (Outer Ring) - UNIQUE SPAWN SYSTEM
+// Create shuffled array of clue IDs (1-7) to ensure each spawns exactly once
+var _clue_ids = [1, 2, 3, 4, 5, 6, 7];
+// Shuffle the array
+for (var _i = array_length(_clue_ids) - 1; _i > 0; _i--) {
+    var _j = irandom(_i);
+    var _temp = _clue_ids[_i];
+    _clue_ids[_i] = _clue_ids[_j];
+    _clue_ids[_j] = _temp;
+}
+
+// Spawn each unique clue
+var _clue_spawned = 0;
+var _clue_attempts = 0;
+
+while (_clue_spawned < TOTAL_CLUES_NEEDED && _clue_attempts < 2000) {
+    _clue_attempts++;
+    
+    // 1. Pick a random grid coordinate
+    var _gx = irandom(room_width div TILE_SIZE);
+    var _gy = irandom(room_height div TILE_SIZE);
+    
+    // 2. Create unique key for this cell
+    var _key = string(_gx) + "_" + string(_gy);
+    
+    // 3. Convert to world coordinates
+    var _xx = (_gx * TILE_SIZE) + (TILE_SIZE / 2);
+    var _yy = (_gy * TILE_SIZE) + (TILE_SIZE / 2);
+    
+    // 4. Check if position is not too close to room edges
+    var _within_bounds = (_xx >= SPAWN_EDGE_MARGIN && _xx <= room_width - SPAWN_EDGE_MARGIN &&
+                           _yy >= SPAWN_EDGE_MARGIN && _yy <= room_height - SPAWN_EDGE_MARGIN);
+    
+    if (!_within_bounds) continue; // Skip this position if too close to edge
+    
+    // 5. Check Distance Rules (Outer Ring)
+    var _dist_to_center = point_distance(_cx, _cy, _xx, _yy);
+    
+    if (_dist_to_center >= 250 && _dist_to_center <= _spawn_radius_max) {
+        
+        // 6. Check if cell is empty
+        if (ds_list_find_index(occupied_cells, _key) == -1) {
+            
+            // 7. Check for collision with existing objects
+            if (scr_is_spawn_position_valid(_xx, _yy, SPAWN_COLLISION_CHECK_RADIUS)) {
+                
+                // Success! Create clue with unique ID
+                var _new_clue = instance_create_layer(_xx, _yy, "Instances", obj_clue);
+                _new_clue.clue_id = _clue_ids[_clue_spawned];
+                
+                // Initialize sprite and text based on assigned clue_id
+                _new_clue.initialize_clue();
+                
+                ds_list_add(occupied_cells, _key);
+                _clue_spawned++;
+            }
+        }
+    }
+}
 
 ds_list_destroy(occupied_cells);
 

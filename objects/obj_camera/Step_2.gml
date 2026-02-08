@@ -6,12 +6,9 @@ if (instance_exists(follow_target)) {
 // Smooth Movement (Independent of framerate)
 // Lerp is frame-dependent.
 // Correct formula for frame-independent damping: a = lerp(a, b, 1 - exp(-decay * dt))
-// Adjust smoothness constant. Previous was 0.1 per frame (approx 6 lerp factor). 
-// Let's use a decay of around 5-10 for quick snap.
 
-var _decay = 10;
-x += (x_to - x) * (1 - exp(-_decay * global.dt));
-y += (y_to - y) * (1 - exp(-_decay * global.dt));
+x += (x_to - x) * (1 - exp(-CAMERA_SMOOTH_DECAY * global.dt));
+y += (y_to - y) * (1 - exp(-CAMERA_SMOOTH_DECAY * global.dt));
 
 // Clamp to Room
 var _cam_w = camera_get_view_width(view_camera[0]);

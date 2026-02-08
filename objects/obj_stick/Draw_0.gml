@@ -1,3 +1,4 @@
-// Draw Sprite centered
-draw_sprite(spr_stick, 0, x - 16, y - 16);
+// Draw sprite using object's assigned sprite
+// Sprite should have Bottom-Center origin to align with spawn system
+draw_self();
 

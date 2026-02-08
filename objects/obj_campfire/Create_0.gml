@@ -4,7 +4,6 @@ light_radius = 250;
 image_speed = 0; // Disable default playback
 anim_frame = 0;
 anim_dir = 1;
-anim_speed = 10; // Frames per second
 
 // Define Stages
 // Stage 0: Frame 0 (Dead)

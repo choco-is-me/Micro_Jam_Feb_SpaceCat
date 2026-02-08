@@ -4,9 +4,10 @@ draw_set_color(c_orange);
 draw_set_alpha(0.1 + (global.fuel/200));
 
 // Calculate Center based on Bottom-Center Origin
-// We want the light to come from the visual center of the fire, not the feet.
+// Light emanates from middle of campfire (flame/wood transition)
+var _light_center = 11; // Center point at flame/wood junction
 var _cx = x;
-var _cy = y - (sprite_height / 2);
+var _cy = y - (sprite_height - _light_center * image_yscale);
 
 draw_circle(_cx, _cy, light_radius, false);
 
