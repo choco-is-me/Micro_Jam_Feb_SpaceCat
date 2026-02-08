@@ -10,10 +10,9 @@
 
 #macro PLAYER_MAX_STICKS 5
 #macro INTERACT_RANGE 32         // Reduced from 40 for tighter feel
-#macro PLAYER_LIGHT_RADIUS 48    // Added: Personal light bubble
 #macro PLAYER_VISUAL_SIZE 10     // Added: Smaller visual footprint
-#macro PLAYER_EYE_ANIM_SPEED 4   // Frames per second (Lower is scarier)
-#macro PLAYER_EYE_PAUSE_DURATION 2.0 // Seconds to hold the wide-eye stare
+#macro PLAYER_EYE_ANIM_SPEED 10   // Frames per second (faster = less warning time)
+#macro PLAYER_EYE_PAUSE_DURATION 0.5 // Seconds to hold the wide-eye stare
 #macro PLAYER_IDLE_ANIM_SPEED 3  // Frames per second for idle animation (slower = calmer)
 #macro PLAYER_RUN_ANIM_SPEED 12  // Frames per second for running animation (faster = energetic)
 
@@ -27,8 +26,8 @@
 // Enemy Spawn Rate System (Probability-based)
 // Note: Checked every frame (60 FPS), so rates are per-frame
 // Formula: avg_spawn_time = 1 / (chance_per_frame * 60)
-#macro ENEMY_SPAWN_BASE_CHANCE 0.0008  // ~0.08% per frame = spawn every ~20 seconds near campfire
-#macro ENEMY_SPAWN_MAX_CHANCE 0.004    // ~0.4% per frame = spawn every ~4 seconds when far away
+#macro ENEMY_SPAWN_BASE_CHANCE 0.001  // ~0.1% per frame
+#macro ENEMY_SPAWN_MAX_CHANCE 0.005    // ~0.5% per frame
 #macro ENEMY_SPAWN_DISTANCE_MIN 150    // Distance where spawn rate starts increasing
 #macro ENEMY_SPAWN_DISTANCE_MAX 400    // Distance where spawn rate is maximum
 

@@ -128,7 +128,7 @@ if (enemy_warning_active) {
     
     if (enemy_warning_has_opened && eye_anim_frame <= 0.5 && eye_anim_dir == 1) {
         // Eye closed again and is moving forward = cycle complete
-        // Recalculate spawn position based on CURRENT camera view (player moved during warning)
+        // GUARANTEED SPAWN: Try multiple positions until one works
         if (instance_exists(obj_campfire) && instance_exists(obj_player)) {
             var _campfire = instance_find(obj_campfire, 0);
             var _camp_cx = _campfire.x;
@@ -142,54 +142,86 @@ if (enemy_warning_active) {
             var ch = camera_get_view_height(cam);
             var margin = CAMERA_SPAWN_MARGIN;
             
-            // Recalculate spawn position outside current view
-            var spawn_side = irandom(3); // 0=Top, 1=Right, 2=Bottom, 3=Left
-            var _spawn_x, _spawn_y;
+            var _spawn_x = 0;
+            var _spawn_y = 0;
+            var _found_valid_position = false;
             
-            switch(spawn_side) {
-                case 0: // Top
-                   _spawn_x = random_range(cx, cx + cw);
-                   _spawn_y = cy - margin;
-                   break;
-                case 1: // Right
-                   _spawn_x = cx + cw + margin;
-                   _spawn_y = random_range(cy, cy + ch);
-                   break;
-                case 2: // Bottom
-                   _spawn_x = random_range(cx, cx + cw);
-                   _spawn_y = cy + ch + margin;
-                   break;
-                case 3: // Left
-                   _spawn_x = cx - margin;
-                   _spawn_y = random_range(cy, cy + ch);
-                   break;
+            // Try all 4 sides in random order
+            var _sides = [0, 1, 2, 3]; // 0=Top, 1=Right, 2=Bottom, 3=Left
+            // Shuffle array
+            for (var i = 3; i > 0; i--) {
+                var j = irandom(i);
+                var temp = _sides[i];
+                _sides[i] = _sides[j];
+                _sides[j] = temp;
             }
             
-            // Validate spawn position
-            var _valid_position = false;
-            
-            // Check 1: Outside light radius (or campfire has no fuel)
-            var _outside_light = true;
-            if (global.fuel > 0) {
-                // Only check light radius if campfire is lit
-                _outside_light = point_distance(_spawn_x, _spawn_y, _camp_cx, _camp_cy) > (_campfire.light_radius + CAMERA_SPAWN_SAFETY_MARGIN);
-            }
-            
-            if (_outside_light) {
-                // Check 2: Not too close to player (minimum distance)
-                var _dist_to_player = point_distance(_spawn_x, _spawn_y, obj_player.x, obj_player.y);
-                if (_dist_to_player > 100) { // Minimum 100px from player
-                    // Check 3: No collision with objects
-                    if (scr_is_spawn_position_valid(_spawn_x, _spawn_y, SPAWN_COLLISION_CHECK_RADIUS)) {
-                        _valid_position = true;
+            // Try each side up to 3 times
+            for (var s = 0; s < 4 && !_found_valid_position; s++) {
+                for (var attempt = 0; attempt < 3 && !_found_valid_position; attempt++) {
+                    var spawn_side = _sides[s];
+                    
+                    switch(spawn_side) {
+                        case 0: // Top
+                           _spawn_x = random_range(cx, cx + cw);
+                           _spawn_y = cy - margin;
+                           break;
+                        case 1: // Right
+                           _spawn_x = cx + cw + margin;
+                           _spawn_y = random_range(cy, cy + ch);
+                           break;
+                        case 2: // Bottom
+                           _spawn_x = random_range(cx, cx + cw);
+                           _spawn_y = cy + ch + margin;
+                           break;
+                        case 3: // Left
+                           _spawn_x = cx - margin;
+                           _spawn_y = random_range(cy, cy + ch);
+                           break;
+                    }
+                    
+                    // Validate spawn position
+                    var _outside_light = true;
+                    if (global.fuel > 0) {
+                        _outside_light = point_distance(_spawn_x, _spawn_y, _camp_cx, _camp_cy) > (_campfire.light_radius + CAMERA_SPAWN_SAFETY_MARGIN);
+                    }
+                    
+                    var _dist_to_player = point_distance(_spawn_x, _spawn_y, obj_player.x, obj_player.y);
+                    
+                    // More lenient checks: only require outside light and 80px+ from player
+                    if (_outside_light && _dist_to_player > 80) {
+                        _found_valid_position = true;
                     }
                 }
             }
             
-            // Only spawn if position is valid
-            if (_valid_position) {
-                instance_create_layer(_spawn_x, _spawn_y, "Instances", obj_enemy);
+            // FALLBACK: If all attempts failed, spawn at farthest screen corner from player
+            if (!_found_valid_position) {
+                var _corners = [
+                    [cx, cy], // Top-left
+                    [cx + cw, cy], // Top-right
+                    [cx + cw, cy + ch], // Bottom-right
+                    [cx, cy + ch] // Bottom-left
+                ];
+                
+                var _max_dist = 0;
+                var _best_corner = 0;
+                
+                for (var c = 0; c < 4; c++) {
+                    var _d = point_distance(_corners[c][0], _corners[c][1], obj_player.x, obj_player.y);
+                    if (_d > _max_dist) {
+                        _max_dist = _d;
+                        _best_corner = c;
+                    }
+                }
+                
+                // Spawn slightly off-screen from best corner
+                _spawn_x = _corners[_best_corner][0] + ((_best_corner == 1 || _best_corner == 2) ? margin : -margin);
+                _spawn_y = _corners[_best_corner][1] + ((_best_corner == 2 || _best_corner == 3) ? margin : -margin);
             }
+            
+            // ALWAYS spawn enemy once warning completes
+            instance_create_layer(_spawn_x, _spawn_y, "Instances", obj_enemy);
         }
         
         // Reset warning state
@@ -223,10 +255,14 @@ if (global.fuel > 0) {
 // Only spawn if no warning is active AND no actively chasing enemy exists
 // Allow spawning even if a frozen enemy exists (they're not threatening)
 var _can_spawn = !enemy_warning_active;
+
+// Check ALL enemies, not just the first one
 if (instance_exists(obj_enemy)) {
-    var _enemy = instance_find(obj_enemy, 0);
-    if (_enemy.state == "chasing") {
-        _can_spawn = false; // Prevent spawn only while enemy is actively chasing
+    with (obj_enemy) {
+        if (state == "chasing") {
+            other._can_spawn = false; // Any chasing enemy blocks new spawns
+            break; // Exit early once we find one
+        }
     }
 }
 

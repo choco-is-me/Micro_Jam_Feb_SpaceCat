@@ -57,10 +57,15 @@ if (state == "chasing") {
         // 2. Check Entity Vulnerability (If Entity touches light, it burns)
         var _e_burn = rectangle_in_circle(bbox_left, bbox_top, bbox_right, bbox_bottom, _camp_cx, _camp_cy, campfire.light_radius);
         
-        // Despawn if Player is sufficiently safe OR Entity stepped into light
+        // Instead of instant despawn, freeze and stare at player before disappearing
         if (_p_safe > 0 || _e_burn > 0) {
-            instance_destroy();
-            exit;
+            state = "frozen";
+            freeze_timer = ENEMY_FREEZE_DURATION;
+            sprite_index = spr_ue_idle;
+            image_speed = 0; // Disable built-in animation
+            anim_frame = 0; // Reset animation frame
+            anim_speed = ENEMY_IDLE_ANIM_SPEED; // Set idle animation speed
+            exit; // Exit to frozen state immediately
         }
     }
 

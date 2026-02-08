@@ -55,11 +55,11 @@ if (_show_warning) {
             }
         }
         
-        // Draw eyes at top-left
+        // Draw eyes at top-left (with breathing room from edge)
         // Sprite has center origin (width 61px, origin at x=30), so offset to prevent clipping
         var _eye_sprite_w = sprite_get_width(spr_ue_eye) * gui_scale;
         var _eye_x = gui_margin + (_eye_sprite_w / 2); // Offset by half width to account for center origin
-        var _eye_y = gui_margin;
+        var _eye_y = gui_margin + 25; // Additional offset from top edge
         draw_sprite_ext(spr_ue_eye, floor(eye_anim_frame), _eye_x, _eye_y, gui_scale, gui_scale, 0, c_white, 1);
     } else {
         // Reset animation when no enemy and no warning
@@ -80,7 +80,8 @@ var _ui_left_margin = gui_margin;
 var _x_pos = _ui_left_margin + (gui_icon_size / 2);
 
 // Start below eye warning (if visible) or at margin
-var _y_pos_start = gui_margin + (_show_warning ? (sprite_get_height(spr_ue_eye) * gui_scale + 10) : 0) + (gui_icon_size / 2);
+// Eyes are offset +25px from gui_margin, so inventory must match
+var _y_pos_start = gui_margin + (_show_warning ? (25 + sprite_get_height(spr_ue_eye) * gui_scale + 10) : 0) + (gui_icon_size / 2);
     // Only show if near campfire (player within CAMPFIRE_INTERACT_RADIUS of obj_campfire)
     // Use consistent campfire center position (visual center, not sprite origin)
     var _show_clues = false;
