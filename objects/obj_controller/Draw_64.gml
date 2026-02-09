@@ -20,11 +20,12 @@ var _lh = string_height("M");
 var _sanity_norm = clamp(global.sanity / SANITY_MAX, 0, 1);
 var _bar_frame = round((1 - _sanity_norm) * 20);
 
-var _bar_w = sprite_get_width(spr__sanity_bar) * gui_scale;
+var _bar_scale = gui_scale * SANITY_BAR_SCALE; // Apply custom scale multiplier
+var _bar_w = sprite_get_width(spr__sanity_bar) * _bar_scale;
 var _bar_x = (gui_width / 2) - (_bar_w / 2);
 var _bar_y = gui_margin; // Use config margin
 
-draw_sprite_ext(spr__sanity_bar, _bar_frame, _bar_x, _bar_y, gui_scale, gui_scale, 0, c_white, 1);
+draw_sprite_ext(spr__sanity_bar, _bar_frame, _bar_x, _bar_y, _bar_scale, _bar_scale, 0, c_white, 1);
 
 // --- ENEMY WARNING EYES (Top-Left) ---
 // Show ONLY during warning phase (before enemy spawns), not after enemy exists

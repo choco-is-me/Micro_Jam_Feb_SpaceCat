@@ -1,6 +1,11 @@
 if (global.game_over) exit;
 if (global.game_won) exit;
 
+// Update pickup sound cooldown
+if (pickup_sound_cooldown > 0) {
+    pickup_sound_cooldown -= global.dt;
+}
+
 var _hinput = keyboard_check(global.key_right) - keyboard_check(global.key_left);
 var _vinput = keyboard_check(global.key_down) - keyboard_check(global.key_up);
 
@@ -27,6 +32,12 @@ if (_is_moving) {
         anim_frame = 0; // Reset animation frame
         anim_speed = PLAYER_RUN_ANIM_SPEED; // Use running speed
     }
+    
+    // Audio: Start running sound
+    if (!audio_is_playing(running_sound_id)) {
+        running_sound_id = audio_play_sound(snd_player_running, 3, true);
+        audio_sound_gain(running_sound_id, RUNNING_SOUND_VOLUME, 0);
+    }
 } else {
     // Switch to idle animation
     if (sprite_index != spr_player_idle) {
@@ -34,6 +45,12 @@ if (_is_moving) {
         image_speed = 0; // Keep built-in animation disabled
         anim_frame = 0; // Reset animation frame
         anim_speed = PLAYER_IDLE_ANIM_SPEED; // Use idle speed
+    }
+    
+    // Audio: Stop running sound
+    if (audio_is_playing(running_sound_id)) {
+        audio_stop_sound(running_sound_id);
+        running_sound_id = -1;
     }
 }
 
@@ -238,12 +255,18 @@ if (_target != noone) {
     }
     
     // Execute Interaction
-
     if (keyboard_check_pressed(global.key_interact)) {
         switch(_action_type) {
             case "stick":
                 stick_inventory++;
                 instance_destroy(_target);
+                
+                // Audio: Play pickup sound with cooldown
+                if (pickup_sound_cooldown <= 0) {
+                    audio_play_sound(snd_pickup_item, 5, false);
+                    audio_sound_gain(snd_pickup_item, PICKUP_SOUND_VOLUME, 0);
+                    pickup_sound_cooldown = PICKUP_SOUND_COOLDOWN;
+                }
                 break;
             case "clue":
                 // Add clue dialog to queue
@@ -251,6 +274,13 @@ if (_target != noone) {
                 
                 global.clues_collected++;
                 instance_destroy(_target);
+                
+                // Audio: Play pickup sound with cooldown
+                if (pickup_sound_cooldown <= 0) {
+                    audio_play_sound(snd_pickup_item, 5, false);
+                    audio_sound_gain(snd_pickup_item, PICKUP_SOUND_VOLUME, 0);
+                    pickup_sound_cooldown = PICKUP_SOUND_COOLDOWN;
+                }
                 break;
                 
             case "campfire_multi":
@@ -260,6 +290,10 @@ if (_target != noone) {
                     stick_inventory--;
                     global.fuel += FUEL_PER_STICK;
                     if (global.fuel > FUEL_MAX) global.fuel = FUEL_MAX;
+                    
+                    // Audio: Play refuel sound
+                    audio_play_sound(snd_refuel, 4, false);
+                    audio_sound_gain(snd_refuel, REFUEL_SOUND_VOLUME, 0);
                 }
                 break;
         }

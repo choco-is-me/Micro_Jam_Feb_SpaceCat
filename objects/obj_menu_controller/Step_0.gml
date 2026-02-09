@@ -14,6 +14,12 @@ switch(fade_state) {
         fade_alpha += MENU_FADE_SPEED * _dt;
         if (fade_alpha >= 1) {
             fade_alpha = 1;
+            
+            // Stop menu campfire sound before room transition
+            if (audio_is_playing(campfire_sound_id)) {
+                audio_stop_sound(campfire_sound_id);
+            }
+            
             // Transition to next room
             if (next_room != -1) {
                 room_goto(next_room);
@@ -62,6 +68,10 @@ if (input_timer <= 0) {
                 break;
                 
             case 1: // Exit Game
+                // Stop campfire sound before exiting
+                if (audio_is_playing(campfire_sound_id)) {
+                    audio_stop_sound(campfire_sound_id);
+                }
                 game_end();
                 break;
         }

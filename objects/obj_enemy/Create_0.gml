@@ -9,4 +9,8 @@ image_speed = 0; // Disable built-in animation (use manual control for delta tim
 anim_frame = 0;
 anim_speed = ENEMY_RUN_ANIM_SPEED; // Start with running speed (chasing is default)
 
+// Audio: Play scream sound when spawned (one-shot, no cleanup needed)
+audio_play_sound(snd_scream, 10, false);
+audio_sound_gain(snd_scream, SCREAM_SOUND_VOLUME, 0);
+
 

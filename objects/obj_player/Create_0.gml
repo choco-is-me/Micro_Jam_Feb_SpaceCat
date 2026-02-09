@@ -26,3 +26,7 @@ dialog_char_timer = 0; // Timer for typing animation
 dialog_linger_timer = 0; // Timer for showing complete text before fading
 dialog_alpha = 1.0; // Alpha for fade-out effect
 dialog_state = "idle"; // States: "idle", "typing", "lingering", "fading"
+
+// Audio Management
+running_sound_id = -1; // ID for footsteps loop
+pickup_sound_cooldown = 0; // Cooldown timer to prevent pickup sound spam

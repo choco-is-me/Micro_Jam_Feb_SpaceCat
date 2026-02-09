@@ -99,6 +99,16 @@ var occupied_cells = ds_list_create(); // Track used cells to prevent overlap
 // Initialize Delta Time global
 global.dt = 0;
 
+// Audio Management
+campfire_sound_id = -1; // ID for campfire ambient loop
+heartbeat_sound_id = -1; // ID for low sanity heartbeat loop
+
+// Start campfire sound if fuel > 0
+if (global.fuel > 0) {
+    campfire_sound_id = audio_play_sound(snd_campfire, 1, true);
+    audio_sound_gain(campfire_sound_id, CAMPFIRE_SOUND_VOLUME_MAX, 0);
+}
+
 var spawn_resource = function(_obj, _count, _min_dist, _max_dist, _list, _grid_size, _center_x, _center_y) {
 
     var _spawned_count = 0;
@@ -217,3 +227,23 @@ while (_clue_spawned < TOTAL_CLUES_NEEDED && _clue_attempts < 2000) {
 
 ds_list_destroy(occupied_cells);
 
+// --- SHADER SYSTEM INITIALIZATION ---
+// Surface for shader application
+shader_surface = -1;
+
+// Shader uniform handles (cached for performance)
+if (SHADER_ENABLED && shader_is_compiled(shd_lighting)) {
+    uni_resolution = shader_get_uniform(shd_lighting, "u_resolution");
+    uni_ambient = shader_get_uniform(shd_lighting, "u_ambient");
+    uni_vignette = shader_get_uniform(shd_lighting, "u_vignette");
+    uni_num_lights = shader_get_uniform(shd_lighting, "u_num_lights");
+    uni_light_positions = shader_get_uniform(shd_lighting, "u_light_positions");
+    uni_light_colors = shader_get_uniform(shd_lighting, "u_light_colors");
+    uni_light_radii = shader_get_uniform(shd_lighting, "u_light_radii");
+    uni_light_intensities = shader_get_uniform(shd_lighting, "u_light_intensities");
+} else {
+    // Shader not available - disable it
+    if (SHADER_ENABLED) {
+        show_debug_message("WARNING: Shader shd_lighting not compiled or not available - shader disabled");
+    }
+}

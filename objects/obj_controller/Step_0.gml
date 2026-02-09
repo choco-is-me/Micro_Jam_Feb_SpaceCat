@@ -251,20 +251,55 @@ if (global.fuel > 0) {
     global.fuel = 0;
 }
 
-// Enemy Spawning Logic - Distance-Based Spawn Rate
-// Only spawn if no warning is active AND no actively chasing enemy exists
-// Allow spawning even if a frozen enemy exists (they're not threatening)
-var _can_spawn = !enemy_warning_active;
-
-// Check ALL enemies, not just the first one
-if (instance_exists(obj_enemy)) {
-    with (obj_enemy) {
-        if (state == "chasing") {
-            other._can_spawn = false; // Any chasing enemy blocks new spawns
-            break; // Exit early once we find one
-        }
+// Audio Management: Campfire Sound (Distance-Based Volume)
+// Start campfire sound when fuel > 0, stop when fuel depletes
+if (global.fuel > 0) {
+    if (!audio_is_playing(campfire_sound_id)) {
+        campfire_sound_id = audio_play_sound(snd_campfire, 1, true);
+        audio_sound_gain(campfire_sound_id, CAMPFIRE_SOUND_VOLUME_MAX, 0);
+    }
+    
+    // Dynamic volume based on player distance from campfire
+    if (instance_exists(obj_player) && instance_exists(obj_campfire)) {
+        var _campfire = instance_find(obj_campfire, 0);
+        var _camp_cx = _campfire.x;
+        var _camp_cy = _campfire.y - (_campfire.sprite_height - CAMPFIRE_LIGHT_CENTER_OFFSET * _campfire.image_yscale);
+        
+        var _dist_to_campfire = point_distance(obj_player.x, obj_player.y, _camp_cx, _camp_cy);
+        
+        // Calculate volume: close = max, far = min
+        var _volume_factor = clamp(1 - (_dist_to_campfire / CAMPFIRE_SOUND_DISTANCE_MAX), 0, 1);
+        var _target_volume = lerp(CAMPFIRE_SOUND_VOLUME_MIN, CAMPFIRE_SOUND_VOLUME_MAX, _volume_factor);
+        
+        // Smoothly adjust volume (fade over 100ms for smooth transitions)
+        audio_sound_gain(campfire_sound_id, _target_volume, 100);
+    }
+} else {
+    if (audio_is_playing(campfire_sound_id)) {
+        audio_stop_sound(campfire_sound_id);
+        campfire_sound_id = -1;
     }
 }
+
+// Audio Management: Heartbeat Sound
+// Play when sanity is at or below threshold (35% = frame 13 of sanity bar)
+var _sanity_norm = global.sanity / SANITY_MAX;
+if (_sanity_norm <= SANITY_HEARTBEAT_THRESHOLD) {
+    if (!audio_is_playing(heartbeat_sound_id)) {
+        heartbeat_sound_id = audio_play_sound(snd_heartbeat, 2, true);
+        audio_sound_gain(heartbeat_sound_id, HEARTBEAT_SOUND_VOLUME, 0);
+    }
+} else {
+    if (audio_is_playing(heartbeat_sound_id)) {
+        audio_stop_sound(heartbeat_sound_id);
+        heartbeat_sound_id = -1;
+    }
+}
+
+// Enemy Spawning Logic - Distance-Based Spawn Rate
+// Only spawn if no warning is active AND no enemy exists (chasing OR frozen)
+// STRICT RULE: Only 1 enemy at a time for balanced gameplay
+var _can_spawn = !enemy_warning_active && !instance_exists(obj_enemy);
 
 if (_can_spawn) {
     if (instance_exists(obj_player) && instance_exists(obj_campfire)) {

@@ -69,6 +69,7 @@
 #macro UI_ICON_SIZE_BASE 32      // Base icon size before scaling
 #macro UI_PADDING 15             // Padding for UI boxes
 #macro UI_HELP_FADE_SPEED 1.0    // Help notification fade speed (per second)
+#macro SANITY_BAR_SCALE 2.0      // Sanity bar size multiplier (2.0 = 2x bigger)
 
 // Dialog System (Clue Typing Animation)
 #macro DIALOG_CHARS_PER_SECOND 50      // Characters revealed per second (faster for readability)
@@ -95,4 +96,52 @@
 #macro ENDING_TEXT_LINGER 3.0          // Seconds to show complete ending before prompt
 #macro ENDING_THANKYOU_LINGER 3.0      // Seconds to show thank you screen
 
+// Audio
+#macro CAMPFIRE_SOUND_VOLUME_MAX 0.6   // Campfire max volume when close (0-1)
+#macro CAMPFIRE_SOUND_VOLUME_MIN 0.15  // Campfire min volume when far (0-1)
+#macro CAMPFIRE_SOUND_DISTANCE_MAX 400 // Distance where campfire sound reaches minimum volume
+#macro HEARTBEAT_SOUND_VOLUME 0.8      // Heartbeat loop volume (0-1)
+#macro PICKUP_SOUND_VOLUME 0.6         // Item pickup sound volume (0-1)
+#macro RUNNING_SOUND_VOLUME 0.7        // Player footsteps loop volume (0-1)
+#macro REFUEL_SOUND_VOLUME 0.8         // Campfire refuel sound volume (0-1)
+#macro SCREAM_SOUND_VOLUME 0.8         // Enemy scream sound volume (0-1)
+#macro SANITY_HEARTBEAT_THRESHOLD 0.35 // Sanity percentage to trigger heartbeat (35% = frame 13)
+#macro PICKUP_SOUND_COOLDOWN 0.15      // Minimum seconds between pickup sounds
+
+// Shader & Lighting System
+#macro SHADER_ENABLED true                  // Master toggle for shader system
+#macro SHADER_AMBIENT_DARKNESS 0.01         // Base darkness level (0.0=pitch black, 1.0=fully lit)
+#macro SHADER_VIGNETTE_STRENGTH 1         // Vignette intensity (0.0=none, 1.0=strong)
+
+// Light Source Properties (Radius and Intensity)
+#macro LIGHT_CAMPFIRE_RADIUS_BASE 180       // Campfire light radius at full fuel
+#macro LIGHT_CAMPFIRE_RADIUS_MIN 60         // Campfire light radius at zero fuel (nearly dead)
+#macro LIGHT_CAMPFIRE_INTENSITY 1.2         // Campfire brightness multiplier
+#macro LIGHT_CAMPFIRE_COLOR_R 1.0           // Orange-yellow campfire glow
+#macro LIGHT_CAMPFIRE_COLOR_G 0.6
+#macro LIGHT_CAMPFIRE_COLOR_B 0.2
+
+#macro LIGHT_PLAYER_RADIUS 80               // Player ambient light (visibility)
+#macro LIGHT_PLAYER_INTENSITY 0.6           // Subtle player glow
+#macro LIGHT_PLAYER_COLOR_R 0.9             // Warm white
+#macro LIGHT_PLAYER_COLOR_G 0.9
+#macro LIGHT_PLAYER_COLOR_B 1.0
+
+#macro LIGHT_ENEMY_RADIUS 100               // Enemy ominous glow
+#macro LIGHT_ENEMY_INTENSITY 0.8            // Medium intensity
+#macro LIGHT_ENEMY_COLOR_R 1.0              // Red menacing glow
+#macro LIGHT_ENEMY_COLOR_G 0.2
+#macro LIGHT_ENEMY_COLOR_B 0.2
+
+#macro LIGHT_CLUE_RADIUS 60                 // Clue highlight radius
+#macro LIGHT_CLUE_INTENSITY 0.5             // Subtle glow
+#macro LIGHT_CLUE_COLOR_R 0.4               // Cyan mysterious glow
+#macro LIGHT_CLUE_COLOR_G 0.8
+#macro LIGHT_CLUE_COLOR_B 1.0
+
+#macro LIGHT_STICK_RADIUS 50                // Stick item radius
+#macro LIGHT_STICK_INTENSITY 0.4            // Faint glow
+#macro LIGHT_STICK_COLOR_R 0.8              // Pale yellow-green
+#macro LIGHT_STICK_COLOR_G 0.9
+#macro LIGHT_STICK_COLOR_B 0.6
 

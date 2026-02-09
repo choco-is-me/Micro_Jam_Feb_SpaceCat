@@ -16,3 +16,7 @@ gui_needs_recalc = true;
 // Input debounce (prevent instant double-press)
 input_cooldown = 0.2; // Seconds
 input_timer = 0;
+
+// Audio - Menu Campfire Ambience
+campfire_sound_id = audio_play_sound(snd_campfire, 1, true);
+audio_sound_gain(campfire_sound_id, CAMPFIRE_SOUND_VOLUME_MAX, 0);
